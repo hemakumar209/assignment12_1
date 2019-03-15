@@ -1,0 +1,80 @@
+1. Perform the below given activities:
+a. Take Apple Stock Prices from Yahoo Finance for last 90 days
+   Ans:
+    > library(quantmod)
+
+     >getSymbols("AAPL",from="2018-10-07",to="2019-02-16" ,src =  "yahoo", adjust =  TRUE)
+
+     >View(AAPL)
+     >names(AAPL)
+     >rownames(AAPL)
+
+     >mydf<-data.frame(AAPL)
+     >head(mydf)
+
+     >mydf <- cbind(rownames(mydf), mydf)
+     >rownames(mydf) <- NULL
+     >colnames(mydf) <- c( "Date","AAPL.Open", "AAPL.High", "AAPL.Low", "AAPL.Close", "AAPL.Volume", "AAPL.Adjusted")
+
+
+b. Predict the Stock closing prices for next 15 days.
+    Ans:
+       >library(ggplot2)
+       >qplot(Date,AAPL.Close,data = mydf)
+
+       >ds<-mydf$Date
+       >y<-log(mydf$AAPL.Close)
+       >qplot(ds,y,data = mydf)
+
+       >df<-data.frame(ds,y)
+
+
+
+       >library(prophet)
+       >m<-prophet(df,daily.seasonality=TRUE)
+
+       #predictions
+       >future<-make_future_dataframe(m,periods = 15)
+
+       >forecast<-predict(m,future)
+       >tail(forecast,15)
+       >tail(forecast[c('ds','yhat','yhat_lower','yhat_upper')],15)
+       >tail(forecast$yhat,15)
+       >exp(tail(forecast$yhat,15))
+       >plot(m,forecast)
+       >prophet_plot_components(m,forecast)
+
+       >> exp(tail(forecast$yhat,15)) #predicted for next 15 days from  2019-02-16 to 2019-03-02
+
+         [1] 175.2502 176.1107 176.4727 177.9212 179.8218 180.2064 180.0508 181.3633 182.2539 182.6285 
+         [11] 184.1275 186.0944 186.4924 186.3313 187.6897
+
+
+
+
+ c. Submit your accuracy
+   Ans:
+    >h<-exp(tail(forecast$yhat,15))
+    >accuracy(h,mydf$AAPL.Close)
+
+
+ d. After 15 days again collect the data and compare with your forecast
+  Ans:
+ #seeing after 15 days
+   >library(quantmod)
+
+   >getSymbols("AAPL",from="2019-02-16",to="2019-03-12" ,src =  "yahoo", adjust =  TRUE)
+
+   >View(AAPL)
+   >names(AAPL)
+   >rownames(AAPL)
+   >class(AAPL)
+   >mydf<-data.frame(AAPL)
+   >head(mydf)
+
+   >mydf <- cbind(rownames(mydf), mydf)
+   >rownames(mydf) <- NULL
+   >colnames(mydf) <- c( "Date","AAPL.Open", "AAPL.High", "AAPL.Low", "AAPL.Close", "AAPL.Volume", "AAPL.Adjusted")
+
+
+   >data<-cbind(mydf$Date,mydf$AAPL.Close)
